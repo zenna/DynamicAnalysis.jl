@@ -29,7 +29,7 @@ end
 function addrundb(db::SQLiteDB, runname::String, a::Algorithm, p::Problem,
                   status::String, result = nothing, profile = nothing)
   now = string(Dates.now())
-  append(db, "runs", [[runname a p now gethostname() status result profile]])
+  append(db, "runs", [[runname a p now gethostname() status result profile];])
 end
 
 # ResultSets are not great, we'll convert everything to DataFrames
@@ -109,9 +109,10 @@ function groupby(df::SubDataFrame, fs::Vector{Function})
   groupby(dfc,colnames)
 end
 
+@doc "Group a SubDataFrame by f(row)" ->
 groupby(df::SubDataFrame, f::Function) = groupby(df,[f])
 
-# Collate results across processors
+@doc "Collate results across processors" ->
 function collate(rs::Vector{Result}, lensname::Symbol, varname::Symbol)
   combined = Any[]
   for r in rs
