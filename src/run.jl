@@ -1,38 +1,38 @@
-@doc "benchmark an problem against an algorithm
+"""Benchmark an problem against an algorithm
   `benchmark` is a generic function with no methods designed to
   be extended by other users of `DynamicAnalysis` as in:
 
-  `benchmark(::Algorithm,::Problem)`" ->
+  `benchmark(::Algorithm,::Problem)`"""
 benchmark() = error()
 
-@doc """Run each problem in a Vector of problems on each algorithm.
+"""Run each problem in a Vector of problems on each algorithm.
   Runs `length(problems) * length(algos)` analyses
 
   Params
   `newseed` - Resets randomseed before analysis of each problem-algorithm pair
-  `prefix`  - 
+  `prefix`  -
   `savedb` - Save results to an SQLiteDB
   `savefile` - Save results to a file
   `profile` - include profiling data with results
   `dbpath` - Location to save SQLiteDB file defaults to `homedir()/runs.sqlite`
   `exceptions` - When `true`, catches exceptions and continues to next analysis
-  """ ->
+"""
 function record{A<:Algorithm, B<:Problem}(algos::Vector{A},problems::Vector{B};
                                             newseed = false,
-                                            prefix::String = "",
-                                            runname::String = "",
-                                            savedb::Bool = false,
+                                            prefix::AbstractString = "",
+                                            runname::AbstractString = "",
+                                            # savedb::Bool = false,
                                             savefile::Bool = false,
                                             profile::Bool = false,
-                                            dbpath = default_dbpath,
+                                            #dbpath = default_dbpath,
                                             exceptions = true)
 
   # Database saving
-  local db
-  if savedb
-    db = SQLiteDB(dbpath)
-    !tableexists(db, "runs") && create_runs_table!(db)
-  end
+  # local db
+  #if savedb
+  #  db = SQLiteDB(dbpath)
+  #  !tableexists(db, "runs") && create_runs_table!(db)
+  #end
 
   # Serialise data
   local thisrundir
@@ -41,7 +41,7 @@ function record{A<:Algorithm, B<:Problem}(algos::Vector{A},problems::Vector{B};
     mkdir(thisrundir)
   end
 
-  results = Dict{(Algorithm, Problem),Result}()
+  results = Dict{Tuple{Algorithm, Problem}, Result}()
   runiter = 1
   nruns = length(problems) * length(algos)
   nfailures = 0
@@ -56,7 +56,7 @@ function record{A<:Algorithm, B<:Problem}(algos::Vector{A},problems::Vector{B};
       try
         res = benchmark(algos[i], problems[j])
         results[(algos[i],problems[j])] = res
-        savedb && (addrundb(db,runname, algos[i],problems[j],"DONE",res))
+        #savedb && (addrundb(db,runname, algos[i],problems[j],"DONE",res))
         savefile && (dumpbenchmark(thisrundir,results))
       catch er
         nfailures += 1
@@ -64,12 +64,12 @@ function record{A<:Algorithm, B<:Problem}(algos::Vector{A},problems::Vector{B};
         println(er)
         @show length(problems)
         savefile && (results[(algos[i],problems[j])] = er)
-        savedb && (addrundb(db,runname, algos[i],problems[j],"FAIL",er))
+        #savedb && (addrundb(db,runname, algos[i],problems[j],"FAIL",er))
       end
     else
       res = benchmark(algos[i], problems[j])
       results[(algos[i],problems[j])] = res
-      savedb && (addrundb(db,runname, algos[i],problems[j],"DONE",res))
+      #savedb && (addrundb(db,runname, algos[i],problems[j],"DONE",res))
       savefile && (dumpbenchmark(thisrundir,results))
     end
     runiter += 1
@@ -83,7 +83,7 @@ end
 record(a::Algorithm, p::Problem; args...) = analyse([a],[p]; args...)
 
 # Dump the benchmark data into a file
-function dumpbenchmark(thisrundir,x,suffix::String = "")
+function dumpbenchmark(thisrundir,x,suffix::AbstractString = "")
   fname = "$(string(Dates.now()))-$suffix"
   path = joinpath(thisrundir, fname)
   f = open(path,"w")

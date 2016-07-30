@@ -3,16 +3,16 @@
 
 default_dbpath = joinpath(homedir(),"runs.sqlite")
 set_dbpath!(dbpath::String) = global default_dbpath = dbpath
-rundb(dbpath = default_dbpath) = SQLiteDB(dbpath)
+rundb(dbpath = default_dbpath) = SQLite.DB(dbpath)
 
 # Does the table tablename exist in this db?
-function tableexists(db::SQLiteDB, tablename::String)
+function tableexists(db::SQLite.2DB, tablename::String)
   r = query(db,"SELECT name FROM sqlite_master
                 WHERE type='table' AND name='$tablename';")
   r[1,1] != 0
 end
 
-function create_runs_table!(db::SQLiteDB)
+function create_runs_table!(db::SQLite.DB)
   tblquery = "CREATE TABLE runs(
       runname TEXT,
       algorithm  BLOB,
@@ -26,7 +26,7 @@ function create_runs_table!(db::SQLiteDB)
 end
 
 # Add a result to the db
-function addrundb(db::SQLiteDB, runname::String, a::Algorithm, p::Problem,
+function addrundb(db::SQLite.DB, runname::String, a::Algorithm, p::Problem,
                   status::String, result = nothing, profile = nothing)
   now = string(Dates.now())
   append(db, "runs", [[runname a p now gethostname() status result profile];])
@@ -109,10 +109,10 @@ function groupby(df::SubDataFrame, fs::Vector{Function})
   groupby(dfc,colnames)
 end
 
-@doc "Group a SubDataFrame by f(row)" ->
+"Group a SubDataFrame by f(row)"
 groupby(df::SubDataFrame, f::Function) = groupby(df,[f])
 
-@doc "Collate results across processors" ->
+"Collate results across processors"
 function collate(rs::Vector{Result}, lensname::Symbol, varname::Symbol)
   combined = Any[]
   for r in rs
@@ -140,4 +140,3 @@ f_eq(x) = i->i==x
 ## Convenience Queries
 all_records(db=rundb()) = convert(DataFrame,query(db,"SELECT * from runs"))
 all_done(db=rundb()) = convert(DataFrame,query(db,"SELECT * from runs WHERE status is 'DONE'"))
-

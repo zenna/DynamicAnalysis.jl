@@ -1,5 +1,5 @@
-@doc "A computational problem" ->
+"A computational problem"
 abstract Problem
 
-@doc "An algorithm is a procedure to solve a `Problem`" ->
+"An algorithm is a procedure to solve a `Problem`"
 abstract Algorithm
