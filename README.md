@@ -2,6 +2,8 @@
 
 Benchmark and compare your algorithms.
 
+[![Build Status](https://travis-ci.org/zenna/DynamicAnalysis.jl.svg?branch=master)](https://travis-ci.org/zenna/DynamicAnalysis.jl)
+
 # Usage
 
 DynamicAnalysis exports two important types `Problem` and `Algorithm` and two important functions `benchmark` and `record`.
@@ -26,4 +28,3 @@ end
 
 
 ```
-
